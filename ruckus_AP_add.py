@@ -7,18 +7,25 @@ import cprint
 class ruckus_SZ_API:
 
     def __init__(self, host: str):
+
         self.prefix_pattern = "https://{}:8443/wsg/api/public".format(host)
 
+        self.required_headers = {
+            "Content-Type":  "application/json;charset=UTF-8"
+        }
+
     def retrieve_api_version(self):
-        
+
         # Get the API Version
         
         url = "{}/apiInfo".format(self.prefix_pattern)
         api_version = requests.get(url)
 
         return api_version
-
-
+    
+    def service_ticket_logon(self, api_version, username, password):
+        
+        pass
 
     def ruckus_login(self, api_version, username, password):
 
@@ -31,18 +38,16 @@ class ruckus_SZ_API:
             "username": username,
             "password": password
         }
+
         try:
-            requests.post(request_body, data=request_body, verify=verify)
+            r = requests.post(request_body, data=request_body, verify=verify)
         except requests.exceptions.ConnectionError as e:
             cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
             cprint(e,'yellow')
             exit()
+
         return session
-
-
-
-
-
+    
     def retrieve_zone_id(self, session, zone_name):
         url = ""
         return zone_id
@@ -65,9 +70,7 @@ def main():
     # API Version needed for log on
     api_version = ruckus_sesh.retrieve_api_version()
 
-    
-    
-
+    # 
     ruckus_login(host, api_version, username, password)
 
 
