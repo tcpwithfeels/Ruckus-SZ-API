@@ -1,6 +1,15 @@
-# Python 
-
-# TESTTTTTTTTTTTTTTTTTTTTT
+"""
+Author: <Your Name>
+Date Written: YYYY/MM/DD
+Last Modified By: <Your Name>
+Date Last Modified: YYYY/MM/DD
+Date Last Tested: YYYY/MM/DD
+Result: Pass / Fail
+Description: What the script does or is for
+Dependencies: <library dependency>
+Usage: `python3 python_script.py` or `python3 python_script.py <arguments>`
+ All inputs required are in prompt format within the script.
+"""
 
 import requests
 import json
