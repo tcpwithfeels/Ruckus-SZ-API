@@ -45,7 +45,7 @@ serviceTicket is returned as the following parameter in the response payload of 
 
 def check_mac(mac_address):
     if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
-        return True
+        pass
     else:
         print("You inputted: {} \n This is not a valid MAC Address\n")
         exit()
@@ -168,15 +168,18 @@ class ruckus_SZ_API:
         # "required" : [ "mac", "zoneId" ]
 
         url = "{}/{}/aps".format(self.prefix_pattern, self.api_version)
+
+        check_mac(mac)
+
         AP_Info = {
             "mac": mac,
             "zoneId": self.zone_id,
             "apGroupId": self.group_id,
-            "model": "R510",
+            # "model": "Ruckus R510",
             "name": host_name
         }
 
-        r = requests.get(url, data=AP_info, verify=False)
+        r = requests.get(url, data=AP_Info, verify=False)
         
         return status_code
 
@@ -197,24 +200,24 @@ def main():
     # Get the Service Ticket to include in all requests
     ruckus_sesh.session_ticket_logon(host, api_version, username, password)
     print("Service Ticket Produced: {}\n".format(ruckus_sesh.service_ticket_value))
-
     
     # Get ZONE ID when you specify ZONE name
     zone_name = "Zone"
     print("Retrieving ZONE ID from the ZONE NAME: {}".format(zone_name))
     ruckus_sesh.retrieve_zone_id(zone_name) 
-    print("ZONE ID Retrieved: {}".format(ruckus_sesh.zone_id))
+    print("ZONE ID Retrieved: {}\n".format(ruckus_sesh.zone_id))
 
-    print("Retrieving AP Group ID")
     # Get GROUP ID when you specify GROUP name
     group_name = "Group"
     print("Retrieving GROUP ID from the GROUP NAME: {}".format(group_name))
     ruckus_sesh.retrieve_group_id(group_name) 
-    print("GROUP ID Retrieved: {}".format(ruckus_sesh.group_id))
+    print("GROUP ID Retrieved: {}\n".format(ruckus_sesh.group_id))
 
-    
-
-
+    # ZONE and GROUP
+    print("Time to ADD WAP to SZ Host")
+    print("Info Needed:\n1. MAC Address of WAP\n2. Serial Number of WAP\n3. Hostname of WAP")
+    mac = input("1. MAC Address of WAP:\n")
+    ruckus_sesh.create_ruckus_ap(self, host_name, mac) 
 
 if __name__ == '__main__':
     main()
