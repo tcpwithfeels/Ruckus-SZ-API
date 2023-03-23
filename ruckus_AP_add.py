@@ -19,6 +19,8 @@ Usage: `python3 ruckus_AP_add.py`
 import requests
 import json
 import cprint
+import re
+from getpass import getpass
 
 """
 API Documentation
@@ -42,7 +44,7 @@ serviceTicket is returned as the following parameter in the response payload of 
 """
 
 def check_mac(mac_address):
-    if mac_address == :
+    if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
         return True
     else:
         print("You inputted: {} \n This is not a valid MAC Address\n")
@@ -127,9 +129,11 @@ class ruckus_SZ_API:
         for zones in list_of_zones:
             if zones["name"] == zone_name:
                 self.zone_id = zones["id"]
+
         return self.zone_id
 
     def retrieve_group_id(self, group_name):
+
         url = "{}/{}/rkszones/{}/apgroups".format(self.prefix_pattern, self.api_version, self.zone_id)
         r = requests.get(url, verify=False)
         list_of_groups = r["list"]
@@ -159,6 +163,7 @@ class ruckus_SZ_API:
         "bssColoringEnable": true
     }
     """
+
     def create_ruckus_ap(self, host_name, mac):
         # "required" : [ "mac", "zoneId" ]
 
@@ -185,10 +190,29 @@ def main():
     # API Version needed for log on
     api_version = ruckus_sesh.retrieve_api_version()
 
-    # Get the Service Ticket to include in all requests
-    service_ticket = ruckus_sesh.session_ticket_logon(host, api_version, username, password)
-    print("Service Ticket Produced: {}".format(service_ticket))
+    # Generate username and password
+    username = input("Username:\n")
+    password = getpass("Password:\n")
 
+    # Get the Service Ticket to include in all requests
+    ruckus_sesh.session_ticket_logon(host, api_version, username, password)
+    print("Service Ticket Produced: {}\n".format(ruckus_sesh.service_ticket_value))
+
+    
+    # Get ZONE ID when you specify ZONE name
+    zone_name = "Zone"
+    print("Retrieving ZONE ID from the ZONE NAME: {}".format(zone_name))
+    ruckus_sesh.retrieve_zone_id(zone_name) 
+    print("ZONE ID Retrieved: {}".format(ruckus_sesh.zone_id))
+
+    print("Retrieving AP Group ID")
+    # Get GROUP ID when you specify GROUP name
+    group_name = "Group"
+    print("Retrieving GROUP ID from the GROUP NAME: {}".format(group_name))
+    ruckus_sesh.retrieve_group_id(group_name) 
+    print("GROUP ID Retrieved: {}".format(ruckus_sesh.group_id))
+
+    
 
 
 
