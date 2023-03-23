@@ -6,7 +6,7 @@ A blurb about the script and what it does.
 How to operate the script. Use code syntax: `python python_script.py argument -flag`
 Important notes in **BOLD** or *ITALICS* or **_BOTH_**
 
-## Dependancies
+## Dependencies
 The following libraries are dependancies
 - required library
 - second required library

@@ -1,14 +1,19 @@
 """
-Author: <Your Name>
-Date Written: YYYY/MM/DD
-Last Modified By: <Your Name>
+Author: Justin Francisco
+Date Written: 23/03/2023
+Last Modified By: Justin Francisco
+
 Date Last Modified: YYYY/MM/DD
 Date Last Tested: YYYY/MM/DD
+
 Result: Pass / Fail
-Description: What the script does or is for
-Dependencies: <library dependency>
-Usage: `python3 python_script.py` or `python3 python_script.py <arguments>`
- All inputs required are in prompt format within the script.
+
+Description: Interaction with Ruckus SZ 100 API to Mass Add Ruckus 510 WAPs
+Dependencies: requests json
+Usage: `python3 ruckus_AP_add.py`
+
+<description>
+
 """
 
 import requests
