@@ -37,14 +37,15 @@ PS C:\Users\JustinFrancisco\Documents\Ruckus-Code> git init
 
 Initialized empty Git repository in C:/Users/JustinFrancisco/Documents/Ruckus-Code/.git/
 
-# The git remote add command takes two arguments:
-# A remote name, for example, origin
-# A remote URL, for example, https://github.com/OWNER/REPOSITORY.git
+The git remote add command takes two arguments:
+
+A remote name, for example, origin
+A remote URL, for example, https://github.com/OWNER/REPOSITORY.git
+
 PS C:\Users\JustinFrancisco\Documents\Ruckus-Code> 
 
 git remote add cbr https://github.com/tcpwithfeels/Ruckus-SZ-API.git
 
-# 
 PS C:\Users\JustinFrancisco\Documents\Ruckus-Code> git pull cbr
 remote: Enumerating objects: 3, done.
 remote: Counting objects: 100% (3/3), done.
