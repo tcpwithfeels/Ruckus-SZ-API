@@ -20,6 +20,34 @@ import requests
 import json
 import cprint
 
+"""
+API Documentation
+https://docs.ruckuswireless.com/smartzone/6.1.0/sz100-public-api-reference-guide-610.html
+
+Common Request Header
+The following parameters are required in the HTTP headers of all API requests.
+
+Parameter:      Content-Type	
+Value:          “application/json;charset=UTF-8”
+
+-------
+
+Common Request URI Parameters 
+The following parameters are required in the Request URI Parameters of all API requests (except for the logon API).
+
+Parameter:	    ServiceTicket	
+Value:          {serviceTicket}
+
+serviceTicket is returned as the following parameter in the response payload of the Service Ticket Logon API.
+"""
+
+def check_mac(mac_address):
+    if mac_address == :
+        return True
+    else:
+        print("You inputted: {} \n This is not a valid MAC Address\n")
+        exit()
+
 class ruckus_SZ_API:
 
     def __init__(self, host: str):
@@ -33,23 +61,21 @@ class ruckus_SZ_API:
     def retrieve_api_version(self):
 
         # Get the API Version
-        
-        url = "{}/apiInfo".format(self.prefix_pattern)
-        api_version = requests.get(url)
+        # This will be included in most requests in the URL portion
 
+        url = "{}/apiInfo".format(self.prefix_pattern)
+        self.api_version = requests.get(url)
         return api_version
     
+    # -----------------------
+    # Service Ticket - Logon
+    # -----------------------
+
     def service_ticket_logon(self, api_version, username, password):
-        
-        pass
 
-    def ruckus_login(self, api_version, username, password):
+        # Use this API command to log on to the controller and acquire a valid service ticket.
 
-        url = "{}/{}/serviceTicket".format(self.prefix_pattern, api_version)
-
-        # Request Body in POST
-        # Required [username, password]
-
+        url = "{}/{}/serviceTicket".format(self.prefix_pattern, self.api_version)
         request_body = {
             "username": username,
             "password": password
@@ -61,19 +87,92 @@ class ruckus_SZ_API:
             cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
             cprint(e,'yellow')
             exit()
+        self.service_ticket_value = r["serviceTicket"]
+        return self.service_ticket_value
+
+    # -----------------------
+    # Session ID - Logon
+    # -----------------------
+
+    def session_id_logon(self, username, password):
+        
+        # Ruckus Logon
+        # Use this API command to log on to the controller and acquire a valid logon session.
+
+        url = "{}/{}/serviceTicket".format(self.prefix_pattern, self.api_version)
+
+        # Request Body in POST
+        # Required [username, password]
+
+        request_body = {
+            "username": username,
+            "password": password
+        }
+        request_body["serviceTicket"] = self.service_ticket_value
+
+        try:
+            r = requests.post(url, data=request_body, verify=False)
+        except requests.exceptions.ConnectionError as e:
+            cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
+            cprint(e,'yellow')
+            exit()
 
         return session
     
-    def retrieve_zone_id(self, session, zone_name):
-        url = ""
-        return zone_id
+    def retrieve_zone_id(self, zone_name):
+        url = "{}/{}/rkszones".format(self.prefix_pattern, self.api_version)
+        r = requests.get(url, verify=False)
+        list_of_zones = r["list"]
 
-    def retrieve_group_id(self, session, zone_id, group_name):
+        for zones in list_of_zones:
+            if zones["name"] == zone_name:
+                self.zone_id = zones["id"]
+        return self.zone_id
 
-        return group_id
+    def retrieve_group_id(self, group_name):
+        url = "{}/{}/rkszones/{}/apgroups".format(self.prefix_pattern, self.api_version, self.zone_id)
+        r = requests.get(url, verify=False)
+        list_of_groups = r["list"]
 
-    def create_ruckus_ap(self, name, mac, zone_id, group_id):
-    # "required" : [ "mac", "zoneId" ]
+        for groups in list_of_groups:
+            if groups["name"] == group_name:
+                self.group_id = groups["id"]
+        
+        return self.group_id
+
+
+    """
+    {
+        "mac": "00:11:22:33:44:55",
+        "zoneId": "zoneUUID",
+        "apGroupId": "apGroupUUID",
+        "serial": "00000096",
+        "model": "ZF7962",
+        "name": "apName",
+        "gpsSource": "MANUAL",
+        "latitude": 22.3,
+        "longitude": 114,
+        "location": "shenzhen",
+        "description": "apDescription",
+        "administrativeState": "Unlocked",
+        "provisionChecklist": "test",
+        "bssColoringEnable": true
+    }
+    """
+    def create_ruckus_ap(self, host_name, mac):
+        # "required" : [ "mac", "zoneId" ]
+
+        url = "{}/{}/aps".format(self.prefix_pattern, self.api_version)
+        AP_Info = {
+            "mac": mac,
+            "zoneId": self.zone_id,
+            "apGroupId": self.group_id,
+            "model": "R510",
+            "name": host_name
+        }
+
+        r = requests.get(url, data=AP_info, verify=False)
+        
         return status_code
 
 def main():
@@ -86,8 +185,11 @@ def main():
     # API Version needed for log on
     api_version = ruckus_sesh.retrieve_api_version()
 
-    # 
-    ruckus_login(host, api_version, username, password)
+    # Get the Service Ticket to include in all requests
+    service_ticket = ruckus_sesh.session_ticket_logon(host, api_version, username, password)
+    print("Service Ticket Produced: {}".format(service_ticket))
+
+
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 # Project Title
 ## Description
-A blurb about the script and what it does.
+Allows API Interaction with Ruckus SZ 100 Wireless Controller
 
 ## Usage
 How to operate the script. Use code syntax: `python python_script.py argument -flag`
