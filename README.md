@@ -16,7 +16,7 @@ Important notes in **BOLD** or *ITALICS* or **_BOTH_**
 
 ## Dependencies
 The following libraries are dependancies
-- required library
+- requests, openpyxl
 - second required library
 > Consider packaging required pip modules with the project for portability
 
