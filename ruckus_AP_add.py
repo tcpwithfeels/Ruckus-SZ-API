@@ -17,7 +17,6 @@ Usage: `python3 ruckus_AP_add.py`
 """
 
 import requests
-import json
 import cprint
 import re
 import openpyxl

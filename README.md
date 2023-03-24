@@ -22,6 +22,7 @@ The following libraries are dependancies
 
 ## Author
 Auther: Justin Francisco Ma
+
 Credit to Craig who wrote the cprint function - https://github.com/Phatkone
 
 ## Git-ting GUD
@@ -72,7 +73,6 @@ To https://github.com/tcpwithfeels/Ruckus-SZ-API.git
 PS C:\Users\JustinFrancisco\Documents\Ruckus-Code> git branch
 * master
 PS C:\Users\JustinFrancisco\Documents\Ruckus-Code> git branch testing
-
 PS C:\Users\JustinFrancisco\Documents\Ruckus-Code> git checkout testing
 Switched to branch 'testing'
 
