@@ -25,6 +25,12 @@ Auther: Justin Francisco Ma
 
 Credit to Craig who wrote the cprint function - https://github.com/Phatkone
 
+
+# FEELING SCRIPTY #
+
+![image](https://user-images.githubusercontent.com/125618256/227404147-21825174-d69e-4f10-b0fa-bf497cdab6c8.png)
+
+
 ## Git-ting GUD
 Ruckus-SZ-API
 Mass adding of Ruckus Wireless Access Points
