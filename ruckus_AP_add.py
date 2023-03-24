@@ -229,11 +229,13 @@ def main():
     print("Time to ADD WAP/s to SZ Host")
     # print("Info Needed:\n1. MAC Address of WAP\n2. Serial Number of WAP\n3. Hostname of WAP")
     # uncomment to do one at a time
+
     """
     mac = input("1. MAC Address of WAP:\n")
     host_name = input("1. Hostname of WAP:\n")
     ruckus_sesh.create_ruckus_ap(self, host_name, mac)
     """
+    
     list_mac_hostnames = ruckus_sesh.get_list_hostnames("List_WAPs.xlsx")
     for machosts in list_mac_hostnames:
         try:
