@@ -17,7 +17,7 @@ Important notes in **BOLD** or *ITALICS* or **_BOTH_**
 ## Dependencies
 The following libraries are dependancies
 - requests, openpyxl
-- second required library
+- re (regex for MAC Address Checking)
 > Consider packaging required pip modules with the project for portability
 
 ## Author
