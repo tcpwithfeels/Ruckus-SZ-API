@@ -1,8 +1,13 @@
 # Project Title
 ## Description
-Allows API Interaction with Ruckus SZ 100 Wireless Controller
+Allows API Interaction with Ruckus Smart Zone 100 Wireless Controller
 
 ## Usage
+Two ways to operate the script. 
+If there is an argument specified then the script will read the spreadsheet called "List_WAPs.xlxs"
+And go through each line and add APs to the controller.
+EXAMPLE python python_script.py argument -flag
+
 How to operate the script. Use code syntax: `python python_script.py argument -flag`
 Important notes in **BOLD** or *ITALICS* or **_BOTH_**
 
