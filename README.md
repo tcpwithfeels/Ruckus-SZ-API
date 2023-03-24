@@ -1,4 +1,4 @@
-# Project Title
+# Ruckus Smart Zone API Script
 ## Description
 Allows API Interaction with Ruckus Smart Zone 100 Wireless Controller
 
