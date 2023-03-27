@@ -66,7 +66,7 @@ Please Check the Following:
         return False
 
 class ruckus_SZ_API:
-
+    # 27/03/2023
     def __init__(self, host: str):
 
         self.prefix_pattern = "https://{}:8443/wsg/api/public".format(host)
