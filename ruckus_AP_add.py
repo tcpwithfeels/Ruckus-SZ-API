@@ -44,13 +44,26 @@ Value:          {serviceTicket}
 
 serviceTicket is returned as the following parameter in the response payload of the Service Ticket Logon API.
 """
-
-def check_mac(mac_address):
-    if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
-        pass
+# RUCKUS MAC FORMAT E.G.
+# 341593017F00
+def check_ruckus_mac(mac_address):
+    # if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
+    if re.match(r"^(341593)([0-9a-fA-F]{6})$",mac_address):
+        print("""
+              Valid MAC Address
+              """)
+        return True
     else:
-        print("You inputted: {} \n This is not a valid MAC Address\n")
-        exit()
+        print("You inputted: {} \n This is not a valid MAC Address\n".format(mac_address))
+        print("""
+
+Please Check the Following:
+- It should be a 12 HEXADECIMAL Value
+- Ruckus MAC Addresses do not contain : (colons)
+- IOU of Ruckuz 510s starts with the following 341593
+
+              """)
+        return False
 
 class ruckus_SZ_API:
 
@@ -173,20 +186,38 @@ class ruckus_SZ_API:
         max_row = ws.max_row + 1
         mac_hostname_waplist = []
         for iterations in range(2,max_row):
-            DICT = {
-                "name" : ws["A{}".format(iterations)].value,
-                "mac"  : ws["B{}".format(iterations)].value,
-                # "zoneId": self.zone_id,
-                "zoneId": "self.zone_id",
-                "apGroupId": "self.group_id"
-                # "apGroupId": self.group_id,
-                # "model": "Ruckus R510"
-            }
-            mac_hostname_waplist.append(DICT)
+            
+                DICT = {
+                    "name" : ws["A{}".format(iterations)].value,
+                    "mac"  : ws["B{}".format(iterations)].value,
+                    # "zoneId": self.zone_id,
+                    "zoneId": "self.zone_id",
+                    "apGroupId": "self.group_id"
+                    # "apGroupId": self.group_id,
+                    # "model": "Ruckus R510"
+                }
+                mac_hostname_waplist.append(DICT)
         print(mac_hostname_waplist)
         return mac_hostname_waplist
 
+    def scan_to_spready(self, SPREADSHEET):
+        wb = openpyxl.load_workbook(SPREADSHEET)
+        ws = wb["Sheet1"]
+        # Return list of dictionaries
+        max_row = ws.max_row + 1
+        mac_hostname_waplist = []
+        row_to_start = input("Where in the {} Spreadsheet do you want to start?".format(SPREADSHEET))
+        for iterations in range(row_to_start,max_row):
+            hostname = ws["A{}".format(iterations)].value
+            mac_address = input("MAC Address for {}:".format(hostname))
+            print("Writing Mac Address to Spreadsheet at Cell B-{}".format(iterations))
+            ws['B{}'.format(iterations)] = str(mac_address)
+
+
 def main():
+#   print(check_ruckus_mac("34159307F00"))
+#    exit()
+
     # Main HOST Variable for API Call
     host = "192.X.X.X"
     ruckus_sesh = ruckus_SZ_API(host)
@@ -236,6 +267,7 @@ def main():
     """
     
     list_mac_hostnames = ruckus_sesh.get_list_hostnames("List_WAPs.xlsx")
+    #list_mac_hostnames = ruckus_sesh.get_list_hostnames("H510_WAP_Info.xlsx")
     for machosts in list_mac_hostnames:
         try:
             print("MAC Address: {}".format(machosts['mac']))
