@@ -254,8 +254,8 @@ class ruckus_SZ_API:
         return r.status_code
     
     # ------------------------------------------
-    # AP Configuration - Create WAP
-    # CREATE AP - Specify MAC, Zone and Group
+    # AP Verification - Validate WAP
+    # Verify AP - DISPLAY
     # ------------------------------------------
 
     def verify_ruckus_ap(self, mac):
@@ -264,9 +264,15 @@ class ruckus_SZ_API:
 
         r = requests.post(url, headers=self.required_headers, verify=False)
         json_to_dictionary = json.dumps(r)
+        ap_config_dictionary = {
+            "name" : json_to_dictionary["apName"],
+            "zoneId" : json_to_dictionary["zoneId"],
+            "apGroupId" : json_to_dictionary["apGroupId"],
+            "model" : json_to_dictionary["model"],
+            "administrativeState" : json_to_dictionary["administrativeState"],
+        }
 
-
-        return r.status_code
+        return ap_config_dictionary
     
     def get_list_mac_hosts(self, SPREADSHEET):
         # Load the Spreadsheet
@@ -282,7 +288,7 @@ class ruckus_SZ_API:
 
         # Return list of dictionaries
         for iteration in range(2,max_row):
-            
+        
                 DICT = {
                     "name" : ws["A{}".format(iteration)].value,
                     "mac"  : ws["B{}".format(iteration)].value,
@@ -342,7 +348,6 @@ def main():
     list_mac_hostnames = ruckus_sesh.get_list_mac_hosts("List_WAPs.xlsx")
     
     # Iterate through the list
-
     for machosts in list_mac_hostnames:
         try:
             print("MAC Address: {}".format(machosts['mac']))
@@ -350,16 +355,35 @@ def main():
             print("ZONE ID: {}".format(machosts['zoneId']))
             print("GROUP ID: {}".format(machosts['groupId']))
             input("Correct?\nPress ENTER to CONTINUE: [\\n]")
+            
+            ruckus_sesh.create_ruckus_ap(machosts['name'], machosts['mac'])
+
             print(
             """
+            ------------------
             Creating WAP - {}
+
             MAC Address : {}
             Zone ID : {}
             Group ID : {}
+            ------------------
             """
             )
-            ruckus_sesh.create_ruckus_ap(self, machosts['name'], machosts['mac'])
-            
+            verify = ruckus_sesh.verify_ruckus_ap(machosts['mac'])
+
+            print(
+            """
+            ------------------
+            Creating WAP - {}
+
+            MAC Address : {}
+            Zone ID : {}
+            Group ID : {}
+            ------------------
+            """.format(verify[],)
+            )
+
+
         except KeyboardInterrupt as e:
             cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
             cprint(e,'yellow')
