@@ -370,19 +370,19 @@ def main():
             """
             )
             verify = ruckus_sesh.verify_ruckus_ap(machosts['mac'])
-
+            
             print(
             """
             ------------------
-            Creating WAP - {}
+            Validating WAP with MAC - {}
 
-            MAC Address : {}
+            {}
+            Name : {}
             Zone ID : {}
             Group ID : {}
             ------------------
-            """.format(verify[],)
+            """.format(machosts['mac'],verify["mac"], verify["zoneId"], verify["groupId"])
             )
-
 
         except KeyboardInterrupt as e:
             cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
