@@ -15,55 +15,18 @@ Usage: `python3 ruckus_AP_add.py`
 """
 
 import requests
-import cprint
-import re
-import openpyxl
 import json
+
+import cprint
+import jchecker
+import jspreadsheet
+
 from getpass import getpass
 
 """
 API Documentation
 https://docs.ruckuswireless.com/smartzone/6.1.0/sz100-public-api-reference-guide-610.html
 """
-
-# RUCKUS MAC FORMAT E.G.
-# 341593017F00
-def check_ruckus_mac(mac_address):
-    # if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
-    if re.match(r"^(341593)([0-9a-fA-F]{6})$",mac_address):
-        print("""
-              Valid MAC Address
-              """)
-        return True
-    else:
-        print("You inputted: {} \n This is not a valid MAC Address".format(mac_address))
-        print("""        
-
-Please Check the Following:
-- It should be a 12 HEXADECIMAL Value
-- Ruckus MAC Addresses do not contain : (colons)
-- IOU of Ruckuz 510s starts with the following 341593
-
-              """)
-        return False
-
-def host_name_checker(hostname):
-    if re.match(r"^(B([0-9]){2}-L([0-9]){2}-R([0-9]){2})$",hostname):
-        print("""
-              Valid Hostname Address
-              """)
-        return True
-    else:
-        print("You inputted: {} \n This is not a valid Hostname".format(hostname))
-        print("""        
-Please Check the Following:
-- Have two dash (-) separators
-- 1st portion should start with B, BXX (XX = Building Number)
-- 2nd portion should start with L, LXX (XX = Floor Number e.g. 1F)
-- 2nd portion should start with R, RXX 
-- FORMAT should be of BXX-LXX-RXX e.g. B98-L76-R54
-              """)
-        return False
     
 class ruckus_SZ_API:
     # 27/03/2023
@@ -219,13 +182,13 @@ class ruckus_SZ_API:
         # "required" : [ "mac", "zoneId" ]
         url = "{}/{}/aps".format(self.prefix_pattern, self.api_version)
 
-        if check_ruckus_mac(mac) and host_name_checker(host_name):
+        if jchecker.check_ruckus_mac(mac) and jchecker.host_name_checker(host_name):
             
             AP_Info = {
                 "mac": mac,
                 "zoneId": self.zone_id,
                 "apGroupId": self.group_id,
-                "model": "Ruckus R510",
+                #"model": "Ruckus R510",
                 "name": host_name
             }
 
@@ -253,33 +216,6 @@ class ruckus_SZ_API:
         }
 
         return ap_config_dictionary
-    
-    def get_list_mac_hosts(self, SPREADSHEET):
-        # Load the Spreadsheet
-
-        wb = openpyxl.load_workbook(SPREADSHEET)
-
-        ############################
-        ws = wb["<VALUE>"]
-        ############################
-
-        max_row = ws.max_row + 1
-        mac_hostname_waplist = []
-
-        # Return list of dictionaries
-        for iteration in range(2,max_row):
-        
-                DICT = {
-                    "name" : ws["A{}".format(iteration)].value,
-                    "mac"  : ws["B{}".format(iteration)].value,
-                    "zoneId": "self.zone_id",
-                    "apGroupId": "self.group_id"
-                    "model": "Ruckus R510"
-                }
-                mac_hostname_waplist.append(DICT)
-
-        #print(mac_hostname_waplist)
-        return mac_hostname_waplist
 
 def main():
     #   print(check_ruckus_mac("34159307F00"))
@@ -317,15 +253,9 @@ def main():
 
     print("Time to ADD WAP/s to SZ Host")
     input("Press ENTER to CONTINUE: [\\n]")
-
-    """
-    mac = input("1. MAC Address of WAP:\n")
-    host_name = input("1. Hostname of WAP:\n")
-    ruckus_sesh.create_ruckus_ap(self, host_name, mac)
-    """
     
     # Retrieve List of MAC Addresses and Hosts
-    list_mac_hostnames = ruckus_sesh.get_list_mac_hosts("List_WAPs.xlsx")
+    list_mac_hostnames = jspreadsheet.get_list_mac_hosts("List_WAPs.xlsx")
     
     # Iterate through the list
     for machosts in list_mac_hostnames:

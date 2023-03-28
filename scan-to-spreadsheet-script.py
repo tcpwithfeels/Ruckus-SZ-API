@@ -1,3 +1,5 @@
+
+
 def scan_to_spready(self, SPREADSHEET):
     wb = openpyxl.load_workbook(SPREADSHEET)
     ws = wb["Sheet1"]
