@@ -20,6 +20,7 @@ import requests
 import cprint
 import re
 import openpyxl
+import json
 from getpass import getpass
 
 """
@@ -44,6 +45,7 @@ Value:          {serviceTicket}
 
 serviceTicket is returned as the following parameter in the response payload of the Service Ticket Logon API.
 """
+
 # RUCKUS MAC FORMAT E.G.
 # 341593017F00
 def check_ruckus_mac(mac_address):
@@ -54,8 +56,8 @@ def check_ruckus_mac(mac_address):
               """)
         return True
     else:
-        print("You inputted: {} \n This is not a valid MAC Address\n".format(mac_address))
-        print("""
+        print("You inputted: {} \n This is not a valid MAC Address".format(mac_address))
+        print("""        
 
 Please Check the Following:
 - It should be a 12 HEXADECIMAL Value
@@ -65,15 +67,29 @@ Please Check the Following:
               """)
         return False
 
+def host_name_checker(hostname):
+    if re.match(r"^(B([0-9]){2}-L([0-9]){2}-R([0-9]){2})$",hostname):
+        print("""
+              Valid Hostname Address
+              """)
+        return True
+    else:
+        print("You inputted: {} \n This is not a valid Hostname".format(hostname))
+        print("""        
+Please Check the Following:
+- Have two dash (-) separators
+- 1st portion should start with B, BXX (XX = Building Number)
+- 2nd portion should start with L, LXX (XX = Floor Number e.g. 1F)
+- 2nd portion should start with R, RXX 
+- FORMAT should be of BXX-LXX-RXX e.g. B98-L76-R54
+              """)
+        return False
+    
 class ruckus_SZ_API:
     # 27/03/2023
     def __init__(self, host: str):
 
         self.prefix_pattern = "https://{}:8443/wsg/api/public".format(host)
-
-        self.required_headers = {
-            "Content-Type":  "application/json;charset=UTF-8"
-        }
 
     def retrieve_api_version(self):
 
@@ -82,7 +98,7 @@ class ruckus_SZ_API:
 
         url = "{}/apiInfo".format(self.prefix_pattern)
         self.api_version = requests.get(url)
-        return api_version
+        return self.api_version
     
     # -----------------------
     # Service Ticket - Logon
@@ -99,20 +115,23 @@ class ruckus_SZ_API:
         }
 
         try:
-            r = requests.post(request_body, data=request_body, verify=verify)
+            r = requests.post(request_body, data=request_body, verify=False)
         except requests.exceptions.ConnectionError as e:
             cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
             cprint(e,'yellow')
             exit()
-        self.service_ticket_value = r["serviceTicket"]
-        return self.service_ticket_value
+        
+        self.required_headers = {
+            "Content-Type":  "application/json;charset=UTF-8",
+            "serviceTicket": r["serviceTicket"]
+        }
 
     # -----------------------
     # Session ID - Logon
     # -----------------------
 
     def session_id_logon(self, username, password):
-        
+        # DEPRICATED unless you're using old API Version
         # Ruckus Logon
         # Use this API command to log on to the controller and acquire a valid logon session.
 
@@ -120,12 +139,11 @@ class ruckus_SZ_API:
 
         # Request Body in POST
         # Required [username, password]
-
         request_body = {
             "username": username,
             "password": password
         }
-        request_body["serviceTicket"] = self.service_ticket_value
+        self.service_ticket_value = request_body["serviceTicket"]
 
         try:
             r = requests.post(url, data=request_body, verify=False)
@@ -133,109 +151,171 @@ class ruckus_SZ_API:
             cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
             cprint(e,'yellow')
             exit()
+   
+    # ------------------------------------------
+    # Ruckus Wireless AP Zone - Retrieve List
+    # Retrieve Zone ID from List
+    # ------------------------------------------
 
-        return session
-    
     def retrieve_zone_id(self, zone_name):
 
         url = "{}/{}/rkszones".format(self.prefix_pattern, self.api_version)
-        r = requests.get(url, verify=False)
-        list_of_zones = r["list"]
+        self.zone_name = zone_name
 
+        """
+        {
+            "totalCount": 2,
+            "hasMore": false,
+            "firstIndex": 0,
+            "list": [
+                {
+                "id": "zoneUUID",
+                "name": "zoneName"
+                },
+                {
+                "id": "zoneUUID2",
+                "name": "zoneName2"
+                }
+            ]
+        }
+        """
+
+        r = requests.get(url, headers=self.required_headers, verify=False)
+        list_of_zones = r["list"]
+        print("List of Zones Here:\n{}".format(list_of_zones))
         for zones in list_of_zones:
             if zones["name"] == zone_name:
                 self.zone_id = zones["id"]
+                print("""
+                ZONE Name {} FOUND\nID Found: {}
+                """.format(zone_name, self.zone_id)
+                )
 
-        return self.zone_id
+    # ------------------------------------------
+    # AP Group - Retrieve List
+    # Retrieve Group ID from List
+    # ------------------------------------------
 
     def retrieve_group_id(self, group_name):
 
         url = "{}/{}/rkszones/{}/apgroups".format(self.prefix_pattern, self.api_version, self.zone_id)
-        r = requests.get(url, verify=False)
-        list_of_groups = r["list"]
+        self.group_name = group_name
 
+        """
+        {
+            "totalCount": 2,
+            "hasMore": false,
+            "firstIndex": 0,
+            "list": [
+                {
+                "id": "apGroupUUID",
+                "name": "apGroupName"
+                },
+                {
+                "id": "apGroupUUID2",
+                "name": "apGroupName2"
+                }
+            ]   
+        }
+        """
+
+        r = requests.get(url, headers=self.required_headers, verify=False)
+        list_of_groups = r["list"]
+        print("List of Groups Here:\n{}".format(list_of_groups))
         for groups in list_of_groups:
             if groups["name"] == group_name:
                 self.group_id = groups["id"]
-        
-        return self.group_id
+                print("""
+                Group Name {} FOUND\nID Found: {}
+                """.format(group_name, self.group_id)
+                )
+
+    # ------------------------------------------
+    # AP Group - Create WAP
+    # CREATE AP - Specify MAC, Zone and Group
+    # ------------------------------------------
 
     def create_ruckus_ap(self, host_name, mac):
         # "required" : [ "mac", "zoneId" ]
-
         url = "{}/{}/aps".format(self.prefix_pattern, self.api_version)
 
-        check_mac(mac)
+        if check_ruckus_mac(mac) and host_name_checker(host_name):
+            
+            AP_Info = {
+                "mac": mac,
+                "zoneId": self.zone_id,
+                "apGroupId": self.group_id,
+                "model": "Ruckus R510",
+                "name": host_name
+            }
 
-        AP_Info = {
-            "mac": mac,
-            "zoneId": self.zone_id,
-            "apGroupId": self.group_id,
-            # "model": "Ruckus R510",
-            "name": host_name
-        }
+            r = requests.post(url, data=AP_Info, headers=self.required_headers, verify=False)
 
-        r = requests.get(url, data=AP_Info, verify=False)
-        
-        return status_code
+        return r.status_code
     
-    def get_list_hostnames(self, SPREADSHEET):
+    # ------------------------------------------
+    # AP Configuration - Create WAP
+    # CREATE AP - Specify MAC, Zone and Group
+    # ------------------------------------------
+
+    def verify_ruckus_ap(self, mac):
+        # "required" : [ "mac", "zoneId" ]
+        url = "{}/{}/aps/{}".format(self.prefix_pattern, self.api_version, mac)
+
+        r = requests.post(url, headers=self.required_headers, verify=False)
+        json_to_dictionary = json.dumps(r)
+
+
+        return r.status_code
+    
+    def get_list_mac_hosts(self, SPREADSHEET):
+        # Load the Spreadsheet
+
         wb = openpyxl.load_workbook(SPREADSHEET)
-        ws = wb["Sheet1"]
-        # Return list of dictionaries
+
+        ############################
+        ws = wb["<VALUE>"]
+        ############################
+
         max_row = ws.max_row + 1
         mac_hostname_waplist = []
-        for iterations in range(2,max_row):
+
+        # Return list of dictionaries
+        for iteration in range(2,max_row):
             
                 DICT = {
-                    "name" : ws["A{}".format(iterations)].value,
-                    "mac"  : ws["B{}".format(iterations)].value,
-                    # "zoneId": self.zone_id,
+                    "name" : ws["A{}".format(iteration)].value,
+                    "mac"  : ws["B{}".format(iteration)].value,
                     "zoneId": "self.zone_id",
                     "apGroupId": "self.group_id"
-                    # "apGroupId": self.group_id,
-                    # "model": "Ruckus R510"
+                    "model": "Ruckus R510"
                 }
                 mac_hostname_waplist.append(DICT)
-        print(mac_hostname_waplist)
+
+        #print(mac_hostname_waplist)
         return mac_hostname_waplist
 
-    def scan_to_spready(self, SPREADSHEET):
-        wb = openpyxl.load_workbook(SPREADSHEET)
-        ws = wb["Sheet1"]
-        # Return list of dictionaries
-        max_row = ws.max_row + 1
-        mac_hostname_waplist = []
-        row_to_start = input("Where in the {} Spreadsheet do you want to start?".format(SPREADSHEET))
-        for iterations in range(row_to_start,max_row):
-            hostname = ws["A{}".format(iterations)].value
-            mac_address = input("MAC Address for {}:".format(hostname))
-            print("Writing Mac Address to Spreadsheet at Cell B-{}".format(iterations))
-            ws['B{}'.format(iterations)] = str(mac_address)
-
-
 def main():
-#   print(check_ruckus_mac("34159307F00"))
-#    exit()
+    #   print(check_ruckus_mac("34159307F00"))
+    #   host_name_checker("B98-L6A-R54")
+    #   exit()
 
     # Main HOST Variable for API Call
     host = "192.X.X.X"
-    ruckus_sesh = ruckus_SZ_API(host)
     # Ruckus Session 
     ruckus_sesh = ruckus_SZ_API(host)
 
     # API Version needed for log on
     api_version = ruckus_sesh.retrieve_api_version()
+    print("API Version: {}".format(ruckus_sesh.api_version))
 
     # Generate username and password
     username = input("Username:\n")
     password = getpass("Password:\n")
 
     # Get the Service Ticket to include in all requests
-    ruckus_sesh.session_ticket_logon(host, api_version, username, password)
-    print("Service Ticket Produced: {}\n".format(ruckus_sesh.service_ticket_value))
-    
- #   exit()
+    ruckus_sesh.service_ticket_logon(host, api_version, username, password)
+    print("Service Ticket Produced: {}\n".format(ruckus_sesh.required_headers["serviceTicket"]))
 
     # Get ZONE ID when you specify ZONE name
     zone_name = "Zone"
@@ -243,22 +323,14 @@ def main():
     ruckus_sesh.retrieve_zone_id(zone_name) 
     print("ZONE ID Retrieved: {}\n".format(ruckus_sesh.zone_id))
 
- #   exit()
-
     # Get GROUP ID when you specify GROUP name
     group_name = "Group"
     print("Retrieving GROUP ID from the GROUP NAME: {}".format(group_name))
     ruckus_sesh.retrieve_group_id(group_name) 
     print("GROUP ID Retrieved: {}\n".format(ruckus_sesh.group_id))
 
-#  exit()
-
-    # Add WAP to Group
-    # As long as Zone ID and Group ID is present, the added AP will be added to the group
-    # ONE BY ONE METHOD
     print("Time to ADD WAP/s to SZ Host")
-    # print("Info Needed:\n1. MAC Address of WAP\n2. Serial Number of WAP\n3. Hostname of WAP")
-    # uncomment to do one at a time
+    input("Press ENTER to CONTINUE: [\\n]")
 
     """
     mac = input("1. MAC Address of WAP:\n")
@@ -266,14 +338,28 @@ def main():
     ruckus_sesh.create_ruckus_ap(self, host_name, mac)
     """
     
-    list_mac_hostnames = ruckus_sesh.get_list_hostnames("List_WAPs.xlsx")
-    #list_mac_hostnames = ruckus_sesh.get_list_hostnames("H510_WAP_Info.xlsx")
+    # Retrieve List of MAC Addresses and Hosts
+    list_mac_hostnames = ruckus_sesh.get_list_mac_hosts("List_WAPs.xlsx")
+    
+    # Iterate through the list
+
     for machosts in list_mac_hostnames:
         try:
             print("MAC Address: {}".format(machosts['mac']))
             print("Hostname: {}".format(machosts['name']))
+            print("ZONE ID: {}".format(machosts['zoneId']))
+            print("GROUP ID: {}".format(machosts['groupId']))
             input("Correct?\nPress ENTER to CONTINUE: [\\n]")
+            print(
+            """
+            Creating WAP - {}
+            MAC Address : {}
+            Zone ID : {}
+            Group ID : {}
+            """
+            )
             ruckus_sesh.create_ruckus_ap(self, machosts['name'], machosts['mac'])
+            
         except KeyboardInterrupt as e:
             cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
             cprint(e,'yellow')
