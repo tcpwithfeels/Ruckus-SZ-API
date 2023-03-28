@@ -9,29 +9,54 @@ Dependencies: openpyxl
 """
 
 import openpyxl
+from datetime import date
+
+today = date.today()
+date_format = today.strftime("%d/%m/%Y")
+
+
 
 def get_list_mac_hosts(self, SPREADSHEET):
-        # Load the Spreadsheet
+    
+    # Load the Spreadsheet
+    wb = openpyxl.load_workbook(SPREADSHEET)
 
-        wb = openpyxl.load_workbook(SPREADSHEET)
+    ############################
+    ws = wb["<VALUE>"]
+    ############################
 
-        ############################
-        ws = wb["<VALUE>"]
-        ############################
+    max_row = ws.max_row + 1
+    mac_hostname_waplist = []
 
-        max_row = ws.max_row + 1
-        mac_hostname_waplist = []
+    # Return list of dictionaries
+    for iteration in range(2,max_row):
+    
+        DICT = {
+            "name" : ws["A{}".format(iteration)].value,
+            "mac"  : ws["B{}".format(iteration)].value,
+            "zoneId": "self.zone_id",
+            "apGroupId": "self.group_id"
+            "model": "Ruckus R510"
+        }
+        mac_hostname_waplist.append(DICT)
 
-        # Return list of dictionaries
-        for iteration in range(2,max_row):
-        
-                DICT = {
-                    "name" : ws["A{}".format(iteration)].value,
-                    "mac"  : ws["B{}".format(iteration)].value,
-                    "zoneId": "self.zone_id",
-                    "apGroupId": "self.group_id"
-                    "model": "Ruckus R510"
-                }
-                mac_hostname_waplist.append(DICT)
+    return mac_hostname_waplist
 
-        return mac_hostname_waplist
+def scan_to_spready(self, SPREADSHEET):
+
+    wb = openpyxl.load_workbook(SPREADSHEET)
+    ws = wb["Sheet1"]
+
+    # Return list of dictionaries
+    max_row = ws.max_row + 1
+    mac_hostname_waplist = []
+    row_to_start = input("Where in the {} Spreadsheet do you want to start?".format(SPREADSHEET))
+
+    for iterations in range(row_to_start,max_row):
+        hostname = ws["A{}".format(iterations)].value
+        mac_address = input("MAC Address for {}:".format(hostname))
+        print("Writing Mac Address to Spreadsheet at Cell B-{}".format(iterations))
+        ws['B{}'.format(iterations)] = str(mac_address)
+
+    wb.save("{}-{}".format(SPREADSHEET, date_format))
+    wb.close()
