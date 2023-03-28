@@ -16,14 +16,11 @@ date_format = today.strftime("%d/%m/%Y")
 
 
 
-def get_list_mac_hosts(self, SPREADSHEET):
+def get_list_mac_hosts(self, SPREADSHEET, WORKSHEET = "Sheet1"):
     
     # Load the Spreadsheet
     wb = openpyxl.load_workbook(SPREADSHEET)
-
-    ############################
-    ws = wb["<VALUE>"]
-    ############################
+    ws = wb[WORKSHEET]
 
     max_row = ws.max_row + 1
     mac_hostname_waplist = []
@@ -42,14 +39,13 @@ def get_list_mac_hosts(self, SPREADSHEET):
 
     return mac_hostname_waplist
 
-def scan_to_spready(self, SPREADSHEET):
+def scan_to_spready(self, SPREADSHEET, WORKSHEET = "Sheet1"):
 
     wb = openpyxl.load_workbook(SPREADSHEET)
-    ws = wb["Sheet1"]
+    ws = wb[WORKSHEET]
 
     # Return list of dictionaries
     max_row = ws.max_row + 1
-    mac_hostname_waplist = []
     row_to_start = input("Where in the {} Spreadsheet do you want to start?".format(SPREADSHEET))
 
     for iterations in range(row_to_start,max_row):
