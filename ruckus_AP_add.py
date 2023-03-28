@@ -12,8 +12,6 @@ Description: Interaction with Ruckus SZ 100 API to Mass Add Ruckus 510 WAPs
 Dependencies: requests json
 Usage: `python3 ruckus_AP_add.py`
 
-<description>
-
 """
 
 import requests
@@ -26,24 +24,6 @@ from getpass import getpass
 """
 API Documentation
 https://docs.ruckuswireless.com/smartzone/6.1.0/sz100-public-api-reference-guide-610.html
-
--------
-
-Common Request Header
-The following parameters are required in the HTTP headers of all API requests.
-
-Parameter:      Content-Type	
-Value:          “application/json;charset=UTF-8”
-
--------
-
-Common Request URI Parameters 
-The following parameters are required in the Request URI Parameters of all API requests (except for the logon API).
-
-Parameter:	    ServiceTicket	
-Value:          {serviceTicket}
-
-serviceTicket is returned as the following parameter in the response payload of the Service Ticket Logon API.
 """
 
 # RUCKUS MAC FORMAT E.G.
@@ -370,7 +350,7 @@ def main():
             """
             )
             verify = ruckus_sesh.verify_ruckus_ap(machosts['mac'])
-            
+
             print(
             """
             ------------------
