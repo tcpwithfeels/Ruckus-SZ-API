@@ -216,6 +216,36 @@ class ruckus_SZ_API:
         }
 
         return ap_config_dictionary
+    
+    # ------------------------------------------
+    # Disable LAN Ports on WAP
+    # Verify Later
+    # ------------------------------------------
+
+    def enable_disable_lan_ports(self, mac, enabled = True):
+        url = "{}/{}/aps/{}/specific".format(self.prefix_pattern, self.api_version, mac)
+        enable_disable_data = { "lanPorts": [] }
+        for iteration in range(1,4):
+            lan_port_config = { "portName" : "LAN{}".format(iteration), "enabled" : enabled,  "ethPortProfile": { "id" : "{}".format(iteration) } }    
+            enable_disable_data["lanPorts"].append(lan_port_config)
+
+        r = requests.put(url, data = enable_disable_data, headers = self.required_headers, verify=False)
+        
+        return r.headers
+
+    """
+        "lanPorts": [
+        {
+        "portName": "LAN3",
+        "enabled": true,
+        "ethPortProfile": {
+            "id": "1"
+        },
+        "overwriteVlanEnabled": true,
+        "vlanUntagId": 1,
+        "members": "1"
+        }
+    """
 
 def main():
     #   print(check_ruckus_mac("34159307F00"))
