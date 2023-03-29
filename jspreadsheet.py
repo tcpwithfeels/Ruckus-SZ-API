@@ -14,8 +14,6 @@ from datetime import date
 today = date.today()
 date_format = today.strftime("%d/%m/%Y")
 
-
-
 def get_list_mac_hosts(self, SPREADSHEET, WORKSHEET = "Sheet1"):
     
     # Load the Spreadsheet
@@ -40,7 +38,7 @@ def get_list_mac_hosts(self, SPREADSHEET, WORKSHEET = "Sheet1"):
     return mac_hostname_waplist
 
 def scan_to_spready(self, SPREADSHEET, WORKSHEET = "Sheet1"):
-
+    # Load the Spreadsheet
     wb = openpyxl.load_workbook(SPREADSHEET)
     ws = wb[WORKSHEET]
 
@@ -56,3 +54,6 @@ def scan_to_spready(self, SPREADSHEET, WORKSHEET = "Sheet1"):
 
     wb.save("{}-{}".format(SPREADSHEET, date_format))
     wb.close()
+
+def spready_builder(self, SPREADSHEET, WORKSHEET = "Sheet1"):
+    pass
