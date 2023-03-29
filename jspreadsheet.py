@@ -30,7 +30,7 @@ def get_list_mac_hosts(self, SPREADSHEET, WORKSHEET = "Sheet1"):
             "name" : ws["A{}".format(iteration)].value,
             "mac"  : ws["B{}".format(iteration)].value,
             "zoneId": "self.zone_id",
-            "apGroupId": "self.group_id"
+            "apGroupId": "self.group_id",
             "model": "Ruckus R510"
         }
         mac_hostname_waplist.append(DICT)
