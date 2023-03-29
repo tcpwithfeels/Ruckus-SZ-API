@@ -18,6 +18,7 @@ def get_list_mac_hosts(self, SPREADSHEET, WORKSHEET = "Sheet1"):
     
     # Load the Spreadsheet
     wb = openpyxl.load_workbook(SPREADSHEET)
+    # Find Correct Worksheet
     ws = wb[WORKSHEET]
 
     max_row = ws.max_row + 1
@@ -33,8 +34,8 @@ def get_list_mac_hosts(self, SPREADSHEET, WORKSHEET = "Sheet1"):
             "apGroupId": "self.group_id",
             "model": "Ruckus R510"
         }
-        mac_hostname_waplist.append(DICT)
 
+        mac_hostname_waplist.append(DICT)
     return mac_hostname_waplist
 
 def scan_to_spready(self, SPREADSHEET, WORKSHEET = "Sheet1"):
@@ -56,4 +57,7 @@ def scan_to_spready(self, SPREADSHEET, WORKSHEET = "Sheet1"):
     wb.close()
 
 def spready_builder(self, SPREADSHEET, WORKSHEET = "Sheet1"):
+    pass
+
+def rack_spready_builder(self, SPREADSHEET, WORKSHEET = "Sheet1"):
     pass
