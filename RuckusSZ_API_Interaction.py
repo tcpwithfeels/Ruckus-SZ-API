@@ -10,7 +10,7 @@ Result: Pass / Fail
 
 Description: Interaction with Ruckus SZ 100 API to Mass Add Ruckus 510 WAPs
 Dependencies: requests json
-Usage: `python3 ruckus_AP_add.py`
+Usage: `python RuckusSZ_API_Interaction.py`
 
 """
 
@@ -25,13 +25,12 @@ from getpass import getpass
 
 """
 API Documentation
-https://docs.ruckuswireless.com/smartzone/6.1.0/sz100-public-api-reference-guide-610.html
+https://docs.ruckuswireless.com/smartzone/6.0.0/sz100-public-api-reference-guide-600.html
 """
     
 class ruckus_SZ_API:
     # 27/03/2023
     def __init__(self, host: str):
-
         self.prefix_pattern = "https://{}:8443/wsg/api/public".format(host)
 
     def retrieve_api_version(self):
@@ -253,13 +252,15 @@ def main():
     #   exit()
 
     # Main HOST Variable for API Call
-    host = "192.X.X.X"
+    # SmartZone 6.0
+    host = "131.236.127"
     # Ruckus Session 
     ruckus_sesh = ruckus_SZ_API(host)
 
     # API Version needed for log on
     api_version = ruckus_sesh.retrieve_api_version()
     print("API Version: {}".format(ruckus_sesh.api_version))
+    exit()
 
     # Generate username and password
     username = input("Username:\n")
@@ -269,18 +270,24 @@ def main():
     ruckus_sesh.service_ticket_logon(host, api_version, username, password)
     print("Service Ticket Produced: {}\n".format(ruckus_sesh.required_headers["serviceTicket"]))
 
+    exit()
     # Get ZONE ID when you specify ZONE name
-    zone_name = "Zone"
+    #zone_name = "Production"
+    zone_name = "Default Zone"
     print("Retrieving ZONE ID from the ZONE NAME: {}".format(zone_name))
     ruckus_sesh.retrieve_zone_id(zone_name) 
     print("ZONE ID Retrieved: {}\n".format(ruckus_sesh.zone_id))
 
     # Get GROUP ID when you specify GROUP name
     group_name = "Group"
+    # group_name = default
+    # group_name = LIA
+    
     print("Retrieving GROUP ID from the GROUP NAME: {}".format(group_name))
     ruckus_sesh.retrieve_group_id(group_name) 
     print("GROUP ID Retrieved: {}\n".format(ruckus_sesh.group_id))
 
+    exit()
     print("Time to ADD WAP/s to SZ Host")
     input("Press ENTER to CONTINUE: [\\n]")
     
