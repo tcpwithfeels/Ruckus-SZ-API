@@ -253,7 +253,7 @@ def main():
 
     # Main HOST Variable for API Call
     # SmartZone 6.0
-    host = "131.236.127"
+    host = "131.236.127.250"
     # Ruckus Session 
     ruckus_sesh = ruckus_SZ_API(host)
 
