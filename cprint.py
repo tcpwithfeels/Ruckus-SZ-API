@@ -1,10 +1,7 @@
 """
 
-Written by Craig B.
+Collab with Craig B.
 https://github.com/Phatkone
-           ,,,
-          (. .)
--------ooO-(_)-Ooo-------
 
 """
 
@@ -29,3 +26,25 @@ def cprint(string: str, type: str = "endc", bold: bool = False, underline: bool 
         print("{}{}{}".format(colours[type.upper()],string,colours['ENDC']))
     else:
         print(string)
+
+def jprint_cmd_banner(prompt=None, banner="#"):
+    if prompt == None:
+        print("No Prompt Specified")
+    else:
+        printer = "--- {} ---".format(prompt)
+        print("{}".format(banner*(len(printer))))
+        print(printer)
+        print("{}".format(banner*(len(printer))))
+
+def jhash_header(prompt=None, space=False):
+    if prompt == None:
+        print("-"*10)
+    else:
+        if space:
+            print()
+        printer = "{} --- {} ---".format("#", prompt)
+        print("{}{}".format("#","-"*(len(printer))))
+        print("{}".format(printer))
+        print("{}{}".format("#","-"*(len(printer))))
+        if space:
+            print()

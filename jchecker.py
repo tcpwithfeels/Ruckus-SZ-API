@@ -10,15 +10,27 @@ Dependencies: re
 """
 import re
 
+
+def check_mac_validity(mac_address):
+# 341593017F00
+# 34:15:93:01:7F:00
+    pass
+
 # RUCKUS MAC FORMAT E.G.
 # 341593017F00
 def check_ruckus_mac(mac_address):
-    # if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
+    if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
+        return True
     if re.match(r"^(341593)([0-9a-fA-F]{6})$",mac_address):
+        chunks = [mac_address[i:i+2] for i in range(0, len(mac_address), 2)]
+        newmac = ":".join(chunks)
+        
         print("""
               Valid MAC Address
               """)
-        return True
+        print("Final MAC {}".format(newmac))
+        return newmac
+    
     else:
         print("You inputted: {} \n This is not a valid MAC Address".format(mac_address))
         print("""        
