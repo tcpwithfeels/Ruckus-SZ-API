@@ -42,13 +42,13 @@ class ruckus_SZ_API:
 
     def retrieve_api_version(self,api_version="v8_2"):
         self.api_version = api_version
+        
         # Get the API Version
         # This will be included in most requests in the URL portion
 
     #--------------------------------------------
     # --- Service Ticket - Logon - POST CALL ---
     #--------------------------------------------
-    
 
     def service_ticket_logon(self, api_version="v8_2", username, password):
         self.prefix_pattern = self.prefix_pattern + "/{}".format(self.api_version)
@@ -235,7 +235,7 @@ class ruckus_SZ_API:
     """
 
 def main():
-    # 0
+
     # Main HOST Variable for API Call
     # SmartZone 6.0
     host = "131.236.127.25"

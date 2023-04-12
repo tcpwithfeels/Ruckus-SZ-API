@@ -18,6 +18,7 @@ def check_mac_validity(mac_address):
 
 # RUCKUS MAC FORMAT E.G.
 # 341593017F00
+
 def check_ruckus_mac(mac_address):
     if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
         return True
@@ -60,3 +61,9 @@ Please Check the Following:
 - FORMAT should be of BXX-LXX-RXX e.g. B98-L76-R54
               """)
         return False
+    
+def create_border(sentence):
+    sentence_length = len(sentence)
+    border = '#' +'-' * (sentence_length + 4)
+    output = f"\n{border}\n#  {sentence} |\n{border}\n "
+    return output

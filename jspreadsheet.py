@@ -18,6 +18,7 @@ def get_list_mac_hosts(self, SPREADSHEET, WORKSHEET = "Sheet1"):
     
     # Load the Spreadsheet
     wb = openpyxl.load_workbook(SPREADSHEET)
+
     # Find Correct Worksheet
     ws = wb[WORKSHEET]
 
