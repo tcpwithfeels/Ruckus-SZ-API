@@ -50,7 +50,7 @@ class ruckus_SZ_API:
     # --- Service Ticket - Logon - POST CALL ---
     #--------------------------------------------
 
-    def service_ticket_logon(self, api_version="v8_2", username, password):
+    def service_ticket_logon(self, api_version="v8_2", username=None, password=None):
         self.prefix_pattern = self.prefix_pattern + "/{}".format(self.api_version)
         # Use this API command to log on to the controller and acquire a valid service ticket.
         url = "{}/serviceTicket".format(self.prefix_pattern)
