@@ -21,28 +21,13 @@ def check_mac_validity(mac_address):
 
 def check_ruckus_mac(mac_address):
     if re.match(r"^([0-9a-fA-F]{2}:){5}([0-9a-fA-F][0-9a-fA-F])$",mac_address):
-        return True
+        pass
     if re.match(r"^(341593)([0-9a-fA-F]{6})$",mac_address):
         chunks = [mac_address[i:i+2] for i in range(0, len(mac_address), 2)]
         newmac = ":".join(chunks)
-        
-        print("""
-              Valid MAC Address
-              """)
-        print("Final MAC {}".format(newmac))
         return newmac
-    
     else:
-        print("You inputted: {} \n This is not a valid MAC Address".format(mac_address))
-        print("""        
-
-Please Check the Following:
-- It should be a 12 HEXADECIMAL Value
-- Ruckus MAC Addresses do not contain : (colons)
-- IOU of Ruckuz 510s starts with the following 341593
-
-              """)
-        return False
+        pass
 
 def host_name_checker(hostname):
     if re.match(r"^(B([0-9]){2}-L([0-9]){2}-R([0-9]){2})$",hostname):
