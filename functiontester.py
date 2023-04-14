@@ -29,6 +29,8 @@ cprint.jhash_header("AP with MAC {} Has Been Created", space=True)
 
 cprint.jhash_header("TEST THESE MACS FIRST", space=True)
 
+cprint.jhash_header("DOES THIS LIST LOOK CORRECT?", space=True)
+
 """
 
 list_mac = jspreadsheet.get_list_mac_hosts(SPREADSHEET="WAP info for SmartZone.xlsx", WORKSHEET="H510")

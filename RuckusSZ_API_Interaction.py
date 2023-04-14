@@ -3,14 +3,14 @@ Author: Justin Francisco
 Date Written: 23/03/2023
 Last Modified By: Justin Francisco
 
-Date Last Modified: YYYY/MM/DD
-Date Last Tested: YYYY/MM/DD
+Date Last Modified: 14/04/2023
+Date Last Tested: DD/MM/YYYY
 
 Result: Pass / Fail
 
 Description: Interaction with Ruckus SZ 100 API to Mass Add Ruckus 510 WAPs
 Dependencies: requests json
-Usage: `python RuckusSZ_API_Interaction.py`
+Usage: `python RuckusSZ_API_Interaction.py credentials.json`
 
 """
 
@@ -85,7 +85,7 @@ class ruckus_SZ_API:
             exit()
 
         # Add the service ticket now into each header
-        self.s.headers.update( { "serviceTicket": json_response["serviceTicket"] })
+        self.s.headers.update( { "serviceTicket": json_response["serviceTicket"] } )
         
         return json_response["serviceTicket"]
    
@@ -239,8 +239,10 @@ class ruckus_SZ_API:
     """
 
 def main():
-
-    f = sys.argv[1] + ".json"
+    if ".json" is not sys.argv[1]:
+        f = sys.argv[1] + ".json"
+    else:
+        f = sys.argv[1]
 
     try:
         with open(f, "r") as f_js:
@@ -252,13 +254,11 @@ def main():
 
     except FileNotFoundError:
         print("The file {} does not exist".format(f))
-        exit()
+        print("Credentials File Does Not Exist")
         
     # Main HOST Variable for API Call
-    # SmartZone 6.0
-    
     # Ruckus Session 
-    ruckus_sesh = ruckus_SZ_API(host, api_version)
+    ruckus_sesh = ruckus_SZ_API(host)
 
     # Get the Service Ticket to include in all requests
     serviceTicket = ruckus_sesh.service_ticket_logon(username, password)
@@ -266,7 +266,7 @@ def main():
     print("Service Ticket Produced: {}\n".format(serviceTicket))
 
     # Get ZONE ID when you specify ZONE name
-    #zone_name = "Production"
+    # zone_name = "Default"
 
     zone_name = "Default Zone"
     print("Retrieving ZONE ID from the ZONE NAME: {}".format(zone_name))
@@ -274,11 +274,14 @@ def main():
     print("ZONE ID Retrieved: {}\n".format(ruckus_sesh.zone_id))
 
     # Get GROUP ID when you specify GROUP name
-    group_name = "default"
-    print("Retrieving GROUP ID from the GROUP NAME: {}".format(group_name))
-    ruckus_sesh.retrieve_group_id(group_name) 
-    print("GROUP ID Retrieved: {}\n".format(ruckus_sesh.group_id))
-
+    # May not need this
+    
+    # -----------------------------------------------------------------------
+    # group_name = "default"
+    # print("Retrieving GROUP ID from the GROUP NAME: {}".format(group_name))
+    # ruckus_sesh.retrieve_group_id(group_name) 
+    # print("GROUP ID Retrieved: {}\n".format(ruckus_sesh.group_id))
+    # -----------------------------------------------------------------------
 
     #-------------------------------
     # --- TEST THESE MACS FIRST ---
@@ -288,22 +291,32 @@ def main():
                                  mac="341593007EB0", 
                                  location="Room G02, Building 50", 
                                  description="H510 for Building 50 Room G02")
-    
+    #exit()
+
     ruckus_sesh.create_ruckus_ap(host_name="B50-LGF-RG07", 
                                  mac="341593007210", 
                                  location="Room G07, Building 50", 
                                  description="H510 for Building 50 Room G07")
-    
+    #exit()
+
     ruckus_sesh.create_ruckus_ap(host_name="B50-LGF-RG10", 
                                  mac="34159302BE70", 
                                  location="Room G10, Building 50", 
                                  description="H510 for Building 50 Room G10")
+    #exit()
 
-    exit()
 
     # Retrieve List of MAC Addresses and Hosts
     list_mac_hostnames = jspreadsheet.get_list_mac_hosts(SPREADSHEET="WAP info for SmartZone.xlsx", WORKSHEET="H510")
     
+    print(list_mac_hostnames)
+    print("""
+#--------------------------------------
+# --- DOES THIS LIST LOOK CORRECT? ---
+#--------------------------------------
+"""
+          )
+
     for ite_d in list_mac_hostnames:
 
         try:
@@ -319,10 +332,8 @@ def main():
             ruckus_sesh.create_ruckus_ap(host_name=ite_d['name'], mac=ite_d['mac'], location=ite_d['location'], description=ite_d['description'])
          
         except KeyboardInterrupt as e:
-            cprint("Unable to establish session to Ruckus Smart Zone:\n  ", 'red', True)
-            cprint(e,'yellow')
-            exit()
-
+            
+            continue
     exit()
 
 if __name__ == '__main__':
